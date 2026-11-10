@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'event_list' %}" class="logo">EventHub</a>
+        <div class="nav-links">
+            {% if user.is_authenticated %}
+                {% if user.role == 'organizer' or user.role == 'admin' %}
+                    <a href="{% url 'create_event' %}">+ Create Event</a>
+                {% endif %}
+                <a href="{% url 'profile' %}">Profile ({{ user.username }})</a>
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-link">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'signup' %}" class="btn">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

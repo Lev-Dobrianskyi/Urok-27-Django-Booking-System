@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="header-section">
+    <h1>Upcoming Events</h1>
+    <form method="get" class="filter-form">
+        <input type="text" name="search" placeholder="Search events..." value="{{ request.GET.search }}">
+        <select name="category">
+            <option value="">All Categories</option>
+            <option value="Music">Music</option>
+            <option value="Tech">Tech</option>
+            <option value="Business">Business</option>
+        </select>
+        <select name="sort">
+            <option value="">Sort By...</option>
+            <option value="date">Date</option>
+            <option value="popularity">Popularity</option>
+            <option value="price_low">Price (Low to High)</option>
+            <option value="price_high">Price (High to Low)</option>
+        </select>
+        <button type="submit" class="btn">Filter</button>
+    </form>
+</div>
+
+<div class="event-grid">
+    {% for event in events %}
+    <div class="event-card">
+        <h3>{{ event.title }}</h3>
+        <p class="category">{{ event.category }}</p>
+        <p class="date">📅 {{ event.date|date:"M d, Y H:i" }}</p>
+        <p class="price">💵 ${{ event.price }}</p>
+        <a href="{% url 'event_detail' event.id %}" class="btn">View Details</a>
+    </div>
+    {% empty %}
+    <p>No events found.</p>
+    {% endfor %}
+</div>
+{% endblock %}
