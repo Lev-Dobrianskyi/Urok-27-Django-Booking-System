@@ -1,11 +1,28 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="auth-box">
-    <h2>Create Event</h2>
+    <!-- Dynamic title based on whether it's an edit or create action -->
+    <h2>{% if form.instance.pk %}Edit Event{% else %}Create Event{% endif %}</h2>
+
     <form method="post">
         {% csrf_token %}
+
+        <!-- Display non-field errors (like the "date in the past" validation) -->
+        {% if form.non_field_errors %}
+            <div class="alert error">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Render form fields -->
         {{ form.as_p }}
-        <button type="submit" class="btn success">Publish Event</button>
+
+        <div style="margin-top: 1rem;">
+            <button type="submit" class="btn success">Save Event</button>
+            <a href="{% if form.instance.pk %}{% url 'event_detail' form.instance.pk %}{% else %}{% url 'event_list' %}{% endif %}" class="btn" style="background: #6B7280;">Cancel</a>
+        </div>
     </form>
 </div>
 {% endblock %}

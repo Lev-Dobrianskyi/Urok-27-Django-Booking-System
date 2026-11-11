@@ -12,7 +12,8 @@
         <a href="{% url 'event_list' %}" class="logo">EventHub</a>
         <div class="nav-links">
             {% if user.is_authenticated %}
-                {% if user.role == 'organizer' or user.role == 'admin' %}
+                <!-- Allow superusers, admins, and moderators to see the create button -->
+                {% if user.is_staff or user.is_superuser or user.role == 'admin' or user.role == 'moderator' %}
                     <a href="{% url 'create_event' %}">+ Create Event</a>
                 {% endif %}
                 <a href="{% url 'profile' %}">Profile ({{ user.username }})</a>

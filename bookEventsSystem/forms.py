@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser, Event
 
@@ -20,3 +21,9 @@ class EventForm(forms.ModelForm):
             'date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'description': forms.Textarea(attrs={'rows': 4}),
         }
+
+    def clean_date(self):
+        date = self.cleaned_data.get('date')
+        if date and date <= timezone.now():
+            raise forms.ValidationError("The event date must be in the future.")
+        return date

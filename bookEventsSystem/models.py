@@ -7,11 +7,19 @@ from django.core.exceptions import ValidationError
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
         ('user', 'User'),
-        ('organizer', 'Organizer'),
-        ('moderator', 'Moderator'),
         ('admin', 'Admin'),
+        ('moderator', 'Moderator'),
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user')
+
+    def save(self, *args, **kwargs):
+        if self.is_superuser:
+            self.role = 'moderator'
+            self.is_staff = True
+        elif self.role in ['admin', 'moderator']:
+            self.is_staff = True
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.username} ({self.role})"
@@ -54,7 +62,7 @@ class Booking(models.Model):
         if self.event.organizer == self.user:
             raise ValidationError("You cannot book your own event.")
         if not self.event.is_available_for_booking():
-            raise ValidationError("This event is not available for booking.")
+            raise ValidationError("This event is no longer available for booking (past event or unavailable).")
 
     def __str__(self):
         return f"{self.user.username} - {self.event.title}"

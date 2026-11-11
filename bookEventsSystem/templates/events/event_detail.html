@@ -2,22 +2,37 @@
 {% block content %}
 <div class="event-detail">
     <h1>{{ event.title }}</h1>
+
+    <!-- Edit/Delete Controls: Visible to creator, Admin, Moderator, or Superuser -->
+    {% if user == event.organizer or user.role == 'admin' or user.role == 'moderator' or user.is_superuser %}
+        <div class="admin-actions" style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
+            <a href="{% url 'update_event' event.id %}" class="btn">Edit Event</a>
+            <form action="{% url 'delete_event' event.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn" style="background: var(--danger);" onclick="return confirm('Are you sure you want to delete this event?');">Delete Event</button>
+            </form>
+        </div>
+    {% endif %}
+
     <p><strong>Organizer:</strong> {{ event.organizer.username }}</p>
     <p><strong>Date:</strong> {{ event.date }}</p>
     <p><strong>Price:</strong> ${{ event.price }}</p>
     <p><strong>Category:</strong> {{ event.category }}</p>
+    <p><strong>Status:</strong> {{ event.get_status_display }}</p>
+
     <div class="description">
         <h3>Description</h3>
         <p>{{ event.description }}</p>
     </div>
 
+    <!-- Booking Logic -->
     {% if user.is_authenticated %}
         {% if user_booked %}
             <button class="btn disabled" disabled>Already Booked</button>
         {% elif event.organizer == user %}
             <button class="btn disabled" disabled>You are the organizer</button>
         {% elif not event.is_available_for_booking %}
-            <button class="btn disabled" disabled>Booking Unavailable</button>
+            <button class="btn disabled" disabled>Booking Unavailable (Event Started/Ended or Canceled)</button>
         {% else %}
             <form method="post" action="{% url 'book_event' event.id %}">
                 {% csrf_token %}
